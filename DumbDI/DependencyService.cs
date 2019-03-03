@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DumbDI
 {
     public sealed class DependencyService
     {
+        private List<Type> registeredTypes = new List<Type>();
+
         public T Resolve<T>()
         {
-            throw new NotImplementedException();
+            if(!registeredTypes.Contains(typeof(T)))
+            {
+                throw new UnregisteredDependencyException();
+            }
+            return Activator.CreateInstance<T>();
         }
 
         public void Register<T>()
         {
-            throw new NotImplementedException();
+            registeredTypes.Add(typeof(T));
         }
     }
 }
