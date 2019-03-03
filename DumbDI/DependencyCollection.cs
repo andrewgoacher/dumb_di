@@ -6,11 +6,11 @@ namespace DumbDI
 {
     internal sealed class DependencyCollection : IEnumerable<Type>
     {
-        private LinkedList<Type> nodes = new LinkedList<Type>();
+        private List<Type> nodes = new List<Type>();
 
         public void AddNode(Type type)
         {
-            nodes.AddLast(type);
+            nodes.Add(type);
         }
 
         public IEnumerator<Type> GetEnumerator()
