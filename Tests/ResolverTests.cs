@@ -54,5 +54,20 @@ namespace Tests
             Assert.NotNull(instance);
             Assert.IsInstanceOf<TestClassB>(instance);
         }
+
+        [Test]
+        public void ResolveRegisteredDependency_WithUnregisteredDependency_ThrowsException()
+        {
+            var service = new DependencyService();
+            service.Register<TestClassB>();
+
+            var exception = Assert.Throws<UnregisteredDependencyException>(() =>
+            {
+                service.Resolve<TestClassB>();
+            });
+
+            Assert.AreEqual(typeof(TestClassB), exception.ResolvingType);
+            Assert.AreEqual(typeof(TestClassA), exception.MissingType);
+        }
     }
 }

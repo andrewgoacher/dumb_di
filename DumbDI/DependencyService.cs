@@ -1,46 +1,32 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace DumbDI
 {
-    public class DependencyCollection : IEnumerable<Type>
-    {
-        private LinkedList<Type> nodes = new LinkedList<Type>();
-
-        public void AddNode(Type type)
-        {
-            nodes.AddLast(type);
-        }
-
-        public IEnumerator<Type> GetEnumerator()
-        {
-            return nodes.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
-
     public sealed class DependencyService
     {
-        private Dictionary<Type, DependencyCollection> registeredTypes 
+        private Dictionary<Type, DependencyCollection> registeredTypes
             = new Dictionary<Type, DependencyCollection>();
 
         private object Resolve(Type type)
         {
             if (!registeredTypes.ContainsKey(type))
             {
-                throw new UnregisteredDependencyException();
+                throw new UnregisteredDependencyException(type, type);
             }
-            var registeredTypeCollection = registeredTypes[type];
-            var paramaters = new List<Object>();
+            DependencyCollection registeredTypeCollection = registeredTypes[type];
+            var paramaters = new List<object>();
 
-            foreach (var t in registeredTypeCollection)
+            foreach (Type t in registeredTypeCollection)
             {
-                paramaters.Add(Resolve(t));
+                try
+                {
+                    paramaters.Add(Resolve(t));
+                }
+                catch (UnregisteredDependencyException)
+                {
+                    throw new UnregisteredDependencyException(type, t);
+                }
             }
 
             return Activator.CreateInstance(type, paramaters.ToArray());
@@ -48,16 +34,16 @@ namespace DumbDI
 
         public T Resolve<T>()
         {
-            return (T)Resolve(typeof(T));  
+            return (T)Resolve(typeof(T));
         }
 
         public void Register<T>()
         {
             var collection = new DependencyCollection();
-            var type = typeof(T);
+            Type type = typeof(T);
 
-            var constructor = type.GetConstructors()[0];
-            foreach (var t in constructor.GetParameters())
+            System.Reflection.ConstructorInfo constructor = type.GetConstructors()[0];
+            foreach (System.Reflection.ParameterInfo t in constructor.GetParameters())
             {
                 collection.AddNode(t.ParameterType);
             }
