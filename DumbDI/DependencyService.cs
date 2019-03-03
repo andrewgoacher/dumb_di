@@ -39,6 +39,11 @@ namespace DumbDI
 
         public void Register<T>()
         {
+            if (registeredTypes.ContainsKey(typeof(T)))
+            {
+                throw new AlreadyRegisteredDependencyException();
+            }
+
             var collection = new DependencyCollection();
             Type type = typeof(T);
 

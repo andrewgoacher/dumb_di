@@ -69,5 +69,17 @@ namespace Tests
             Assert.AreEqual(typeof(TestClassB), exception.ResolvingType);
             Assert.AreEqual(typeof(TestClassA), exception.MissingType);
         }
+
+        [Test]
+        public void RegisterDependency_AlreadyRegistered_ThrowsException()
+        {
+            var service = new DependencyService();
+            service.Register<TestClassA>();
+
+            Assert.Throws<AlreadyRegisteredDependencyException>(() =>
+            {
+                service.Register<TestClassA>();
+            });
+        }
     }
 }
