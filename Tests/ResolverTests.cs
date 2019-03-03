@@ -6,6 +6,13 @@ namespace Tests
     public class ResolverTests
     {
         private class TestClassA { }
+        private class TestClassB
+        {
+            public TestClassB(TestClassA a)
+            {
+
+            }
+        }
 
         [SetUp]
         public void Setup()
@@ -33,6 +40,19 @@ namespace Tests
 
             Assert.NotNull(instance);
             Assert.IsInstanceOf<TestClassA>(instance);
+        }
+
+        [Test]
+        public void ResolveRegisteredDependency_WithDependency_ReturnsInstantiatedObject()
+        {
+            var service = new DependencyService();
+            service.Register<TestClassA>();
+            service.Register<TestClassB>();
+
+            var instance = service.Resolve<TestClassB>();
+
+            Assert.NotNull(instance);
+            Assert.IsInstanceOf<TestClassB>(instance);
         }
     }
 }
