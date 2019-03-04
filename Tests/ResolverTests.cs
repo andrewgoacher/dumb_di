@@ -14,6 +14,22 @@ namespace Tests
             }
         }
 
+        private class TestClassC
+        {
+            public TestClassC(TestClassD d)
+            {
+
+            }
+        }
+
+        private class TestClassD
+        {
+            public TestClassD(TestClassC c)
+            {
+
+            }
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -36,7 +52,7 @@ namespace Tests
             var service = new DependencyService();
             service.Register<TestClassA>();
 
-            var instance = service.Resolve<TestClassA>();
+            TestClassA instance = service.Resolve<TestClassA>();
 
             Assert.NotNull(instance);
             Assert.IsInstanceOf<TestClassA>(instance);
@@ -49,7 +65,7 @@ namespace Tests
             service.Register<TestClassA>();
             service.Register<TestClassB>();
 
-            var instance = service.Resolve<TestClassB>();
+            TestClassB instance = service.Resolve<TestClassB>();
 
             Assert.NotNull(instance);
             Assert.IsInstanceOf<TestClassB>(instance);
@@ -79,6 +95,19 @@ namespace Tests
             Assert.Throws<AlreadyRegisteredDependencyException>(() =>
             {
                 service.Register<TestClassA>();
+            });
+        }
+
+        [Test]
+        public void RegisterDependency_HasCircularDependency_ThrowsException()
+        {
+            var service = new DependencyService();
+            service.Register<TestClassC>();
+            service.Register<TestClassD>();
+
+            Assert.Throws<CircularDependencyException>(() =>
+            {
+                service.Resolve<TestClassD>();
             });
         }
     }
